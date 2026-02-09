@@ -51,7 +51,7 @@ const RecipeComments = ({ recipeId, recipeOwnerId }) => {
       return;
     }
 
-    // Do not allow recipe owner to comment on their own recipe
+    // Do not allow recipe owner to comment on their own recipes
     if (userId === recipeOwnerId) {
       return;
     }
