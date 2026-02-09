@@ -72,7 +72,7 @@ const RecipeDetails = () => {
           {ingredients.length > 0 ? (
             ingredients.map((ing) => (
               <Typography key={ing._id}>
-                {ing.name} - Quantitiy:{ing.quantity} Unit:{ing.unit}
+                {ing.name} - Quantitiy:{ing.quantity}gram Unit:{ing.unit}
               </Typography>
             ))
           ) : (

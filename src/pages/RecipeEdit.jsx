@@ -29,12 +29,18 @@ import {
 } from "../utils/api_recipestep";
 
 const RecipeEdit = () => {
+  // Get recipe ID from URL
   const { id } = useParams();
+
+  // Used to go to another page after saving
   const navigate = useNavigate();
+
+  // Get user info from cookies
   const [cookies] = useCookies(["currentuser"]);
   const { currentuser = {} } = cookies;
   const { token = "", role = "" } = currentuser;
 
+  // State for recipe fields
   const [title, setTitle] = useState("");
   const [descriptions, setDescriptions] = useState("");
   const [image_url, setImageUrl] = useState("");
@@ -42,17 +48,21 @@ const RecipeEdit = () => {
   const [steps, setSteps] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Run when page loads or when ID changes
   useEffect(() => {
     loadData();
   }, [id]);
 
+  // 🔹 This function loads recipe, ingredients, and steps from backend
   const loadData = async () => {
     try {
+      // Get recipe info
       const recipe = await getRecipe(id);
       setTitle(recipe.title || "");
       setDescriptions(recipe.descriptions || "");
       setImageUrl(recipe.image_url || "");
 
+      // Get ingredients
       const ing = await getIngredients(id);
       if (ing.length > 0) {
         setIngredients(ing);
@@ -60,6 +70,7 @@ const RecipeEdit = () => {
         setIngredients([{ name: "", quantity: "", unit: "" }]);
       }
 
+      // Get steps
       const st = await getSteps(id);
       if (st.length > 0) {
         setSteps(st);
@@ -74,6 +85,7 @@ const RecipeEdit = () => {
     }
   };
 
+  // 🔹 This function checks if all fields are filled
   const isFormValid = () => {
     if (!title || !descriptions) return false;
 
@@ -96,6 +108,7 @@ const RecipeEdit = () => {
     return true;
   };
 
+  // 🔹 This function runs when user clicks "Save Changes"
   const handleSubmit = async () => {
     if (!isFormValid()) {
       toast.error("Please fill in all fields.");
@@ -103,8 +116,10 @@ const RecipeEdit = () => {
     }
 
     try {
+      // Update recipe info
       await updateRecipe(id, { title, descriptions, image_url }, token);
 
+      // Update or add ingredients
       for (let i = 0; i < ingredients.length; i++) {
         const ing = ingredients[i];
         if (ing._id) {
@@ -114,6 +129,7 @@ const RecipeEdit = () => {
         }
       }
 
+      // Update or add steps
       for (let i = 0; i < steps.length; i++) {
         const step = steps[i];
         if (step._id) {
@@ -131,16 +147,19 @@ const RecipeEdit = () => {
     }
   };
 
+  // 🔹 Add a new empty ingredient row
   const addNewIngredient = () => {
     setIngredients([...ingredients, { name: "", quantity: "", unit: "" }]);
   };
 
+  // 🔹 Update a specific ingredient field
   const updateIngredientField = (index, field, value) => {
     const newIngredients = [...ingredients];
     newIngredients[index][field] = value;
     setIngredients(newIngredients);
   };
 
+  // 🔹 Remove an ingredient (and delete from backend if exists)
   const removeIngredient = (index) => {
     const ingToDelete = ingredients[index];
     if (ingToDelete._id) {
@@ -156,16 +175,19 @@ const RecipeEdit = () => {
     setIngredients(newIngredients);
   };
 
+  // 🔹 Add a new empty step
   const addNewStep = () => {
     setSteps([...steps, { instruction_text: "" }]);
   };
 
+  // 🔹 Update a specific step text
   const updateStepField = (index, value) => {
     const newSteps = [...steps];
     newSteps[index].instruction_text = value;
     setSteps(newSteps);
   };
 
+  // 🔹 Remove a step (and delete from backend if exists)
   const removeStep = (index) => {
     const stepToDelete = steps[index];
     if (stepToDelete._id) {
@@ -181,6 +203,7 @@ const RecipeEdit = () => {
     setSteps(newSteps);
   };
 
+  // Show loading text while data is being fetched
   if (loading) {
     return (
       <Typography align="center" mt={5}>
@@ -197,6 +220,7 @@ const RecipeEdit = () => {
           Edit Recipe
         </Typography>
 
+        {/* Recipe Info */}
         <Paper sx={{ p: 3, mb: 4 }}>
           <Typography variant="h6" mb={2}>
             Recipe Info
@@ -229,6 +253,7 @@ const RecipeEdit = () => {
           />
         </Paper>
 
+        {/* Ingredients */}
         <Paper sx={{ p: 3, mb: 4 }}>
           <Typography variant="h6" mb={2}>
             Ingredients
@@ -276,6 +301,7 @@ const RecipeEdit = () => {
           </Button>
         </Paper>
 
+        {/* Steps */}
         <Paper sx={{ p: 3, mb: 4 }}>
           <Typography variant="h6" mb={2}>
             Steps
@@ -303,6 +329,7 @@ const RecipeEdit = () => {
           </Button>
         </Paper>
 
+        {/* Save Button */}
         <Button
           variant="contained"
           fullWidth

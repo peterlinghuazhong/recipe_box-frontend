@@ -19,45 +19,61 @@ import { addIngredient } from "../utils/api_ingredient";
 import { addStep } from "../utils/api_recipestep";
 
 const RecipeAdd = () => {
+  // Used to go to another page after saving
   const navigate = useNavigate();
+
+  // Get user info from cookies
   const [cookies] = useCookies(["currentuser"]);
   const { currentuser = {} } = cookies;
   const { token = "" } = currentuser;
 
+  // Recipe basic info
   const [title, setTitle] = useState("");
   const [descriptions, setDescriptions] = useState("");
   const [img_url, setImgUrl] = useState("");
 
+  // Ingredients list (start with one empty ingredient)
   const [ingredients, setIngredients] = useState([
     { name: "", quantity: "", unit: "" },
   ]);
+
+  // Steps list (start with one empty step)
   const [steps, setSteps] = useState([{ instruction_text: "" }]);
 
+  // ============================
+  // SUBMIT RECIPE
+  // ============================
   const handleSubmit = async () => {
     let valid = true;
 
+    // Check recipe fields
     if (!title) valid = false;
     if (!descriptions) valid = false;
     if (!img_url) valid = false;
 
+    // Check all ingredients
     for (let i = 0; i < ingredients.length; i++) {
       if (!ingredients[i].name) valid = false;
       if (!ingredients[i].quantity) valid = false;
       if (!ingredients[i].unit) valid = false;
     }
 
+    // Check all steps
     for (let i = 0; i < steps.length; i++) {
       if (!steps[i].instruction_text) valid = false;
     }
 
+    // If any field is missing, stop and show error
     if (!valid) {
       toast.error("Please fill in all fields.");
       return;
     }
 
     try {
+      // 1️⃣ Create the recipe
       const recipe = await addRecipe({ title, descriptions, img_url }, token);
 
+      // 2️⃣ Save each ingredient
       for (let i = 0; i < ingredients.length; i++) {
         await addIngredient(
           { ...ingredients[i], recipe_id: recipe._id },
@@ -65,10 +81,12 @@ const RecipeAdd = () => {
         );
       }
 
+      // 3️⃣ Save each step
       for (let i = 0; i < steps.length; i++) {
         await addStep({ ...steps[i], recipe_id: recipe._id }, token);
       }
 
+      // Success message and go to recipe list
       toast.success("Recipe created successfully!");
       navigate("/recipes");
     } catch (err) {
@@ -77,16 +95,23 @@ const RecipeAdd = () => {
     }
   };
 
+  // ============================
+  // INGREDIENT FUNCTIONS
+  // ============================
+
+  // Add a new empty ingredient row
   const addIngredientRow = () => {
     setIngredients([...ingredients, { name: "", quantity: "", unit: "" }]);
   };
 
+  // Update one field of one ingredient
   const updateIngredient = (index, field, value) => {
     const updated = [...ingredients];
     updated[index][field] = value;
     setIngredients(updated);
   };
 
+  // Delete one ingredient by index
   const deleteIngredient = (index) => {
     const updated = [];
     for (let i = 0; i < ingredients.length; i++) {
@@ -97,16 +122,23 @@ const RecipeAdd = () => {
     setIngredients(updated);
   };
 
+  // ============================
+  // STEP FUNCTIONS
+  // ============================
+
+  // Add a new empty step row
   const addStepRow = () => {
     setSteps([...steps, { instruction_text: "" }]);
   };
 
+  // Update one step text
   const updateStep = (index, value) => {
     const updated = [...steps];
     updated[index].instruction_text = value;
     setSteps(updated);
   };
 
+  // Delete one step by index
   const deleteStep = (index) => {
     const updated = [];
     for (let i = 0; i < steps.length; i++) {
@@ -117,6 +149,10 @@ const RecipeAdd = () => {
     setSteps(updated);
   };
 
+  // ============================
+  // UI
+  // ============================
+
   return (
     <>
       <Header />
@@ -125,6 +161,7 @@ const RecipeAdd = () => {
           Add Recipe
         </Typography>
 
+        {/* RECIPE INFO */}
         <Paper sx={{ p: 3, mb: 3 }}>
           <TextField
             label="Title"
@@ -151,6 +188,7 @@ const RecipeAdd = () => {
           />
         </Paper>
 
+        {/* INGREDIENTS */}
         <Paper sx={{ p: 3, mb: 3 }}>
           <Typography variant="h6" mb={2}>
             Ingredients
@@ -185,6 +223,7 @@ const RecipeAdd = () => {
           <Button onClick={addIngredientRow}>+ Add Ingredient</Button>
         </Paper>
 
+        {/* STEPS */}
         <Paper sx={{ p: 3, mb: 3 }}>
           <Typography variant="h6" mb={2}>
             Steps
