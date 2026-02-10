@@ -38,7 +38,7 @@ const SignUp = () => {
           maxAge: 60 * 60 * 8, // expire in 8 hours
         });
         toast.success("You have successfully signed up an account!");
-        navigate("/");
+        navigate("/login");
       }
     } catch (error) {
       console.log(error);

@@ -6,7 +6,7 @@ import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router";
 
 const Header = (props) => {
-  const { current, title = "Welcome To My Recipe Book" } = props;
+  const { current, title = "Welcome To My Recipe Box" } = props;
   const [cookies, setCookie, removeCookie] = useCookies(["currentuser"]);
   const navigate = useNavigate();
   const { currentuser } = cookies;
